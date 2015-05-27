@@ -89,14 +89,11 @@ def depthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
     #util.raiseNotDefined()
 
-    from game import Directions
-    s = Directions.SOUTH; w = Directions.WEST; n = Directions.NORTH; s = Directions.SOUTH;
-
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
 
     unsolved = True
     state = problem.getStartState()
-    visitedStates = Set([state]) # visited states as a set, helps to check if contains value x
+    visitedStates = Set() # visited states as a set, helps to check if contains value x
     path = [] # path as a list
     startNode = [] #node as a list
     startNode.append(tuple([state]))
@@ -105,23 +102,40 @@ def depthFirstSearch(problem):
     priorities = {'South': 1, 'West': 2, 'North': 3, 'East': 4} #priorities as dictionary
     #sucessor is an array with 3 items: path, direction, number of movements
     while True:
+        if fringe.isEmpty(): #defeat
+            return []
         currentNode = fringe.pop() #current Node is the last element on the fringe. element is then removed
         state = currentNode[-1][0] #state is the last state
-        visitedStates.add(state) #add state to visited states, since is a graph traversal
-        #if it finds, calculate the path based on the last node
-        if problem.isGoalState(state):
-            for node in currentNode[1:]:
-                path.append(node[1])
+        if problem.isGoalState(state): #victory 
+            for node in currentNode[1:]: 
+                path.append(node[1]) #calculate the path based on the last node
             return path
         else: 
             #expansion. happens only once per node
-            for successor in problem.getSuccessors(state):
-                if successor[0] not in visitedStates:
-                    successorNode = list(currentNode) #makes a deep copy of node
-                    successorNode.append(successor) #adds the successor
-                    fringe.push(successorNode,priorities[successor[1]])
+            if state not in visitedStates:
+                visitedStates.add(state) #graph search
+                for successor in problem.getSuccessors(state):
+                    if successor[0] not in visitedStates:
+                        successorNode = list(currentNode) #makes a deep copy of node
+                        successorNode.append(successor) #adds the successor
+                        fringe.push(successorNode,priorities[successor[1]])
 
-    #end while loop        
+
+    """
+    function GRAPH-SEARCH(problem,fringe,strategy)
+        closed = empty set
+        fringe = insert(make-node(initial-state[problem]), fringe)
+        loop do 
+            if fringe is empty then return failure #check for failure
+            node = remove-front(fringe, strategy)
+            if goal-test(problem, state[node]) then return node #check for victory
+            if state[node] is not in closed then #needs to check, to make sure it is not expanded twice
+                add state[node] to closed
+                for child-node in expand(state[node], problem) do
+                    fring = insert(child-node, fringe)
+                end
+        end
+    """         
 
 
     """ Test print statements
