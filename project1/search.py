@@ -20,6 +20,7 @@ Pacman agents (in searchAgents.py).
 import util
 from sets import Set
 from util import Stack
+from util import Queue
 from util import PriorityQueue
 
 class SearchProblem:
@@ -97,9 +98,8 @@ def depthFirstSearch(problem):
     path = [] # path as a list
     startNode = [] #node as a list
     startNode.append(tuple([state]))
-    fringe = PriorityQueue() # fringe as a priority queue
-    fringe.push(startNode, 1)
-    priorities = {'South': 1, 'West': 2, 'North': 3, 'East': 4} #priorities as dictionary
+    fringe = Stack() # fringe as a stack
+    fringe.push(startNode)
     #sucessor is an array with 3 items: path, direction, number of movements
     while True:
         if fringe.isEmpty(): #defeat
@@ -115,10 +115,10 @@ def depthFirstSearch(problem):
             if state not in visitedStates:
                 visitedStates.add(state) #graph search
                 for successor in problem.getSuccessors(state):
-                    if successor[0] not in visitedStates:
+                    if successor[0] not in visitedStates: #follows strategy
                         successorNode = list(currentNode) #makes a deep copy of node
                         successorNode.append(successor) #adds the successor
-                        fringe.push(successorNode,priorities[successor[1]])
+                        fringe.push(successorNode)
 
 
     """
@@ -146,12 +146,77 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+
+    unsolved = True
+    state = problem.getStartState()
+    visitedStates = Set() # visited states as a set, helps to check if contains value x
+    path = [] # path as a list
+    startNode = [] #node as a list
+    startNode.append(tuple([state]))
+    fringe = Queue() # fringe as a queue
+    fringe.push(startNode)
+    level = 0
+    #sucessor is an array with 3 items: path, direction, number of movements
+    while True:
+        if fringe.isEmpty(): #defeat
+            return []
+        currentNode = fringe.pop() #current Node is the last element on the fringe. element is then removed
+        state = currentNode[-1][0] #state is the last state
+        if problem.isGoalState(state): #victory 
+            for node in currentNode[1:]: 
+                path.append(node[1]) #calculate the path based on the last node
+            return path
+        else: 
+            #expansion. happens only once per node
+            if state not in visitedStates:
+                visitedStates.add(state) #graph search
+                for successor in problem.getSuccessors(state):
+                    if successor[0] not in visitedStates: #follows strategy
+                        print successor
+                        successorNode = list(currentNode) #makes a deep copy of node
+                        successorNode.append(successor) #adds the successor
+                        fringe.push(successorNode)
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+
+    unsolved = True
+    state = problem.getStartState()
+    visitedStates = Set() # visited states as a set, helps to check if contains value x
+    path = [] # path as a list
+    startNode = [] #node as a list
+    startNode.append(tuple([state, '', 1]))
+    fringe = PriorityQueue() # fringe as a priority queue
+    fringe.push(startNode, 1)
+    level = 0
+    #sucessor is an array with 3 items: path, direction, number of movements
+    while True:
+        if fringe.isEmpty(): #defeat
+            return []
+        currentNode = fringe.pop() #current Node is the last element on the fringe. element is then removed
+        state = currentNode[-1][0] #state is the last state
+        if problem.isGoalState(state): #victory 
+            for node in currentNode[1:]: 
+                path.append(node[1]) #calculate the path based on the last node
+            return path
+        else: 
+            #expansion. happens only once per node
+            if state not in visitedStates:
+                visitedStates.add(state) #graph search
+                for successor in problem.getSuccessors(state):
+                    if successor[0] not in visitedStates: #follows strategy
+                        successorNode = list(currentNode) #makes a deep copy of node
+                        successorNode.append(successor) #adds the successor
+                        nodeCost = reduce(lambda x,s: x+s[2], successorNode, 0)
+                        fringe.push(successorNode, nodeCost)
 
 def nullHeuristic(state, problem=None):
     """

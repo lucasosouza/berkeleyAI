@@ -12,4 +12,9 @@ for fruit, price in fruitPrices.items():
 		print fruit + ' are too expensive!'
 
 # for fruit in fruits	
-map(lambda x: x *x, [1,2,3])
+map(lambda x: x+x, [1,2,3])
+
+def double(x):
+	return x*x
+
+lambda ARGUMENT: PROCEDURE
