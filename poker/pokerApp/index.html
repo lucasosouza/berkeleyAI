@@ -1,0 +1,34 @@
+<doctype! html>
+
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body ng-app="pokerCheater" ng-controller="mainCtrl">
+
+	<h1>Poker Cheater</h1>
+
+	<div class="top-row">
+		<div>
+				<p>Players: </p>
+				<input ng-model="params.players" type="number">
+		</div>		
+		<p>Hand: <span>{{ prob.hand }}</span></p>
+		<p>Turn: <span>{{ prob.table }}</span></p>
+		<button ng-click="reset()">Reset</button>
+	</div>
+
+	<div class="container" >
+
+		<div class="deck">
+			<div class="card" ng-class="{selectedHand: card.selected.hand, selectedTable: card.selected.table }" style="background-position:-{{card.xPos}}px -{{card.yPos}}px" ng-repeat="card in deck" ng-click="select(deck, card)">
+			</div>
+		</div>
+
+	</div>
+
+	<script src="angular.min.js"></script>	
+	<script src="app.js"></script>		
+</body>
+
+</html>
