@@ -7,7 +7,7 @@ var app = angular.module('pokerCheater', []);
 app.controller('mainCtrl', function($scope, $http){
 	$scope.test = "Input the variable to calculate your win probability";
 	$scope.params = {
-		players: 2,
+		players: 6,
 		cardsAtHand: [],
 		cardsAtTable: []
 	}
@@ -105,9 +105,9 @@ app.controller('mainCtrl', function($scope, $http){
 
 	function getStats(type){
 		if (type === "hand") {
-			$scope.params.precision = 500;
+			$scope.params.precision = 3000;
 		} else {
-			$scope.params.precision = 1000;
+			$scope.params.precision = 2000;
 		}
 		console.log("called get stats");
 		updateParams();
@@ -115,9 +115,9 @@ app.controller('mainCtrl', function($scope, $http){
 		$http.post('http://localhost:8124/stats', $scope.params).success(function(data, status, headers){
 			console.log(data)
 			if (type === "hand") {
-				$scope.prob.hand = Number(data).toFixed(2);
+				$scope.prob.hand = Number(data);
 			} else {
-				$scope.prob.table = Number(data).toFixed(2);
+				$scope.prob.table = Number(data);
 			}
 		})
 	}

@@ -28,6 +28,20 @@ select {
 	margin-bottom: 10px;
 }
 
+.results{
+	display:flex;
+	flex-direction: column;
+	justify-content:space-between;
+	align-items:center;
+}
+
+.results-inside{
+	display:flex;
+	flex-direction: row;
+	justify-content:space-between;
+	align-items:center;
+}
+
 .card{
 	margin:1px;
 	width:50px;

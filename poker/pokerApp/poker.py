@@ -221,8 +221,8 @@ class Game(object):
 		self.deck = Deck()
 		self.winner = None
 
-	def run(self, qtdPlayers, cardsAtHand, cardsAtBoard=[]):
-		self.start(qtdPlayers, cardsAtHand, cardsAtBoard)
+	def run(self, qtdPlayers, cardsAtHand, cardsAtTable=[]):
+		self.start(qtdPlayers, cardsAtHand, cardsAtTable)
 		self.resolve()
 		return self.won()
 
@@ -231,14 +231,14 @@ class Game(object):
 	# 	self.resolve()
 	# 	return self.won()
 
-	def start(self, qtdPlayers, cardsAtHand, cardsAtBoard=[]):
+	def start(self, qtdPlayers, cardsAtHand, cardsAtTable=[]):
 		self.deck.remove(cardsAtHand) #remove cards already picken
-		self.deck.remove(cardsAtBoard)
-		board = self.deck.serve(5-len(cardsAtBoard)) #serve the board
-		self.mainPlayer = Player(cardsAtHand + cardsAtBoard + board) #creates the main player and adds to table
+		self.deck.remove(cardsAtTable)
+		board = self.deck.serve(5-len(cardsAtTable)) #serve the board
+		self.mainPlayer = Player(cardsAtHand + cardsAtTable + board) #creates the main player and adds to table
 		self.table.append(self.mainPlayer)
 		for x in range(1, qtdPlayers):
-			self.table.append(Player(self.deck.serve(2) + cardsAtBoard + board)) #creates remaining players
+			self.table.append(Player(self.deck.serve(2) + cardsAtTable + board)) #creates remaining players
 
 	# def start(self, qtdPlayers, cards):
 	# 	self.deck.remove(cardsAtHand) #remove cards already picken
@@ -344,34 +344,6 @@ for suit in ['D', 'H', 'C', 'S']:
 		stdDeck[i]=(rank,suit)
 		i+=1
 
-#set default variables
-cardsAtHand = []
-cardsAtBoard=[]
-numberOfPlayers = 2
-precision = 400
-
-#implement parser
-parser = argparse.ArgumentParser(description="Calculates your chance of winning at texas hold'em poker.")
-parser.add_argument("-p", "--players", help="sets the number of players at the table", type=int)
-parser.add_argument("-c", "--cards", help="sets the cards at the player's hand", type=int, action="append")
-parser.add_argument("-t", "--table", help="sets the cards at the table", type=int, action="append")
-parser.add_argument("-pr", "--precision", help="sets the number of plays to be executed", type=int)
-
-
-
-args = parser.parse_args()
-############ debugging -> remove
-args.cards = [24,42]
-args.table = [5,11,41]
-############
-if args.players:
-	numberOfPlayers = args.players
-if args.cards:
-	cardsAtHand = [stdDeck[x] for x in args.cards]
-if args.table:
-	cardsAtBoard = [stdDeck[x] for x in args.table]
-if args.precision:
-	precision = args.precision
 
 ################script to test 
 """
@@ -395,12 +367,6 @@ class Stats:
 		self.wins = 0
 		self.printed = 0
 		self.winQ = Queue()
-
-	# def play(self):
-	# 	if Game().run(self.players, self.hand, self.table):
-	# 		self.wins += 1
-	# 	else:
-	# 	 self.losses += 1
 
 	def play(self):
 		if Game().run(self.players, self.hand, self.table):
@@ -428,16 +394,86 @@ class Stats:
 		return float(self.wins)/(self.precision)
 
 	def winChance(self):
-		return self.average() #/(float(1)/self.players)
+		return self.average()
 
 	def conclude(self):
-		print self.winChance()
+		print self.average()
+		#return self.winChance()
 
-start = time.clock()	
-stats = Stats(cardsAtHand, cardsAtBoard, 2, 2000)
+#set default variables
+cardsAtHand = []
+cardsAtTable=[]
+numberOfPlayers = 6
+precision = 400
+####################
+
+###############################  STATS CALCS ############
+# #######create fake deck
+# i = 1
+# fakeDeck=[]
+# for i in range(1,53):
+# 	fakeDeck.append(i)
+
+# args = {}
+# results=[]
+# #######simulate a lot of times
+# numberOfPlayers = 6
+# precision = 500
+# for i in range(0,1000):
+# 	d = list(fakeDeck)
+# 	shuffle(d, random)
+# 	hand = [d.pop(), d.pop()]
+# 	cardsAtHand = [stdDeck[x] for x in hand]
+# 	shuffle(d, random)
+# 	table = [d.pop(), d.pop(), d.pop()]
+# 	cardsAtTable = [stdDeck[x] for x in table]
+# 	stats = Stats(cardsAtHand, cardsAtTable, numberOfPlayers, precision)
+# 	stats.simulate()
+# 	results.append(stats.conclude())
+
+# rangs = [0.25, 0.5, 0.75, 1.00, 1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 3.25, 3.50, 3.75, 4.00, 5.00, 10.0]
+# distribution={}
+
+# for result in results:
+# 	for rang in rangs:
+# 		if result <= rang:
+# 			allocated = True
+# 			roundRang = round(rang, 2)
+# 			if roundRang in distribution: 
+# 				distribution[roundRang] += 1
+# 			else: 
+# 				distribution[roundRang] = 1
+# 			break
+###############################  STATS CALCS ############
+
+###############################  REAL PROGRAM ############
+#implement parser
+parser = argparse.ArgumentParser(description="Calculates your chance of winning at texas hold'em poker.")
+parser.add_argument("-p", "--players", help="sets the number of players at the table", type=int)
+parser.add_argument("-c", "--cards", help="sets the cards at the player's hand", type=int, action="append")
+parser.add_argument("-t", "--table", help="sets the cards at the table", type=int, action="append")
+parser.add_argument("-pr", "--precision", help="sets the number of plays to be executed", type=int)
+
+args = parser.parse_args()
+if args.players:
+	numberOfPlayers = args.players
+if args.cards:
+	cardsAtHand = [stdDeck[x] for x in args.cards]
+if args.table:
+	cardsAtTable = [stdDeck[x] for x in args.table]
+if args.precision:
+	precision = args.precision
+
+#start = time.clock()	
+stats = Stats(cardsAtHand, cardsAtTable, numberOfPlayers, precision/numberOfPlayers)
 stats.simulate()
 stats.conclude()
-end = time.clock()
+
+###############################  REAL PROGRAM ############
+
+###############################  TRASH CODE ############
+
+#end = time.clock()
 #print "time spent: %f secs" % ((end-start)*8)
 
 # num = Value('d', 0.0)
