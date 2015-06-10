@@ -262,6 +262,7 @@ def euclideanHeuristic(position, problem, info={}):
     xy2 = problem.goal
     return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
 
+
 #####################################################
 # This portion is incomplete.  Time to write code!  #
 #####################################################
@@ -273,7 +274,7 @@ class CornersProblem(search.SearchProblem):
     You must select a suitable state space and successor function
     """
 
-    def __init__(self, startingGameState, costfn = lambda x: 1, goal=(1,1), start=None, warn=True, visualize=True):
+    def __init__(self, startingGameState, costfn = lambda x: 1):
         """
         Stores the walls, pacman's starting position and corners.
         """
@@ -284,27 +285,15 @@ class CornersProblem(search.SearchProblem):
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
                 print 'Warning: no food in corner ' + str(corner)
+
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-
-    def __init__(self, gameState, costFn = lambda x: 1, goal=(1,1), start=None, warn=True, visualize=True):
-        """
-        Stores the start and goal.
-
-        gameState: A GameState object (pacman.py)
-        costFn: A function from a search state (tuple) to a non-negative number
-        goal: A position in the gameState
-        """
-        self.walls = gameState.getWalls()
-        self.startState = gameState.getPacmanPosition()
-        if start != None: self.startState = start
-        self.goal = goal
-        self.costFn = costFn
-        self.visualize = visualize
-        if warn and (gameState.getNumFood() != 1 or not gameState.hasFood(*goal)):
-            print 'Warning: this does not look like a regular search maze'
+        self.costFn = costfn
+        self.goal = self.corners[0]
+        self.achieved = ()
+        self.startState = (self.startingPosition[0], self.startingPosition[1], self.corners)
 
     def getStartState(self):
         """
@@ -312,8 +301,7 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        #util.raiseNotDefined()
-        return self.startingPosition()
+        return self.startState
 
     def isGoalState(self, state):
         """
@@ -321,17 +309,7 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         #util.raiseNotDefined()
-        isGoal = state == self.goal
-
-        # For display purposes only
-        if isGoal and self.visualize:
-            self._visitedlist.append(state)
-            import __main__
-            if '_display' in dir(__main__):
-                if 'drawExpandedCells' in dir(__main__._display): #@UndefinedVariable
-                    __main__._display.drawExpandedCells(self._visitedlist) #@UndefinedVariable
-
-        return isGoal
+        return len(state[2]) == 0
 
     def getSuccessors(self, state):
         """
@@ -348,10 +326,18 @@ class CornersProblem(search.SearchProblem):
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
+            x,y,z = state
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            if not hitsWall:
+                nextz = ()
+                for corner in z:
+                    if not corner == (nextx, nexty):
+                        nextz = nextz + (corner,)
+                nextState = (nextx, nexty, nextz)
+                cost = self.costFn(nextState)
+                successors.append( (nextState, action, cost))    
 
             "*** YOUR CODE HERE ***"
 
@@ -364,7 +350,7 @@ class CornersProblem(search.SearchProblem):
         include an illegal move, return 999999.  This is implemented for you.
         """
         if actions == None: return 999999
-        x,y= self.startingPosition
+        x,y = self.startingPosition
         for action in actions:
             dx, dy = Actions.directionToVector(action)
             x, y = int(x + dx), int(y + dy)
@@ -385,11 +371,31 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    #corners = problem.corners # These are the corner coordinates
+    #walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    #return 0 # Default to trivial solution
+    goalsLeft = state[2]
+    totalDistance = 0
+    for corner in goalsLeft:
+        xy1 = state[0:2]
+        xy2 = corner
+        distanceToGoal = ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
+        totalDistance += distanceToGoal
+
+    #graph search needs: admissability and consistence
+
+    #admissable being: estimated cost must always be lower than actual cost. but it should be as close as possible.
+
+    #what is the total cost to finish the maze? I have to move to all four. since I'm just summing up the distance to all 4, then it is admissible.
+
+    #is it consistent? taking an action will cause a drop in heuristic of at most c.
+
+    #I'm not sure on this one. I will assume it is for now, as it passes the easy text of UCS and A* returning the same path.
+
+
+    return totalDistance
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -445,6 +451,7 @@ class FoodSearchProblem:
             if self.walls[x][y]:
                 return 999999
             cost += 1
+        print "cost", cost
         return cost
 
 class AStarFoodSearchAgent(SearchAgent):
@@ -483,7 +490,66 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    """
+    #first approach: count food left
+    return len(foodGrid.asList())
+    """
+
+    #second approach: distance to every dot in the maze
+    if "food" not in problem.heuristicInfo.keys():
+        problem.heuristicInfo["food"] = len(foodGrid.asList())
+
+    walls = problem.walls
+    #size = walls.height * walls.width
+    x,y = position
+    foodCount = float(len(foodGrid.asList()))/problem.heuristicInfo["food"]
+    xy1 = position
+    xy2 = None
+    totalDistance = 0
+    for food in foodGrid.asList():
+        if xy2:
+            xy1 = xy2
+        xy2 = food
+        distanceToGoal = ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
+        totalDistance += distanceToGoal
+
+    """    
+    #another approach - food around - worst than original
+    spaces = 0
+    spacesWithFood = 0
+    for i in range(-1,2):
+        for j in range(-1,2):
+            if not (i==0 and j==0):
+                nextx = x+i
+                nexty = y+j
+                if nextx >= 0 and nexty >= 0 and walls.width > nextx and walls.height > nexty:
+                    if not walls[nextx][nexty]:
+                        spaces += 1
+                        if foodGrid[nextx][nexty]:
+                            spacesWithFood+=1
+
+    amountFood = spacesWithFood/float(spaces)
+    #return (1-amountFood) #16583 - 60
+    
+    #this heuristic is wrong 
+    #it calculates the distance to every dot
+    """
+    print totalDistance
+    return totalDistance
+
+    """
+    #return (totalDistance/problem.heuristicInfo["size"]) #16458 - 60
+    #return (totalDistance/size) * (1-amountFood) #5597 - 60 or 5463-60 with range(-1,2)
+    #return totalDistance*foodCount #1887 - 64 nonConsistent
+    #return (totalDistance/2)+(foodCount/2) #5792 - 60
+    #return totalDistance #5500 - 64 - nonConsistent?
+
+    #third approach 
+    #quanto mais comida, mais caro -> maior a heuristica
+    #quanto maior a distancia para comida, mais caro -> maior a heuristica
+
+    #time to close this - for now
+    """
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
