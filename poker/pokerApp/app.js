@@ -105,9 +105,9 @@ app.controller('mainCtrl', function($scope, $http){
 
 	function getStats(type){
 		if (type === "hand") {
-			$scope.params.precision = 3000;
+			$scope.params.precision = 4000;
 		} else {
-			$scope.params.precision = 2000;
+			$scope.params.precision = 4000;
 		}
 		console.log("called get stats");
 		updateParams();
