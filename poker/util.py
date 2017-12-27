@@ -185,9 +185,6 @@ class PriorityQueue:
     def isEmpty(self):
         return len(self.heap) == 0
 
-    def length(self):
-        return self.count
-
 class PriorityQueueWithFunction(PriorityQueue):
     """
     Implements a priority queue with the same push/pop signature of the

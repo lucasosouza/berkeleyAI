@@ -498,8 +498,6 @@ class HeuristicTest(testClasses.TestCase):
         if not h0 > 0:
             return False, 'Heuristic failed non-triviality test'
         if not h0 <= solutionCost:
-            print "heuristic", h0
-            print "solution cost", solutionCost
             return False, 'Heuristic failed admissibility test'
 
         for succ, action, stepCost in problem.getSuccessors(state):

@@ -15,6 +15,7 @@
 from util import manhattanDistance
 from game import Directions
 import random, util
+import copy
 
 from game import Agent
 
@@ -105,6 +106,8 @@ class MultiAgentSearchAgent(Agent):
         self.index = 0 # Pacman is always agent index 0
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
+        self.direction = None
+        self.interactions = 0
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
@@ -129,7 +132,63 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        print "minimax value", self.recursiveMinimax(gameState, 0, 0)
+        return self.direction
+
+    def recursiveMinimax(self, gameState, depth, agentIndex):
+        #print "agentIndex: ", agentIndex
+        nextAgent = agentIndex + 1
+        nextDepth = copy.copy(depth)
+        if agentIndex == (gameState.getNumAgents()-1): 
+            nextDepth += 1
+            nextAgent = 0
+            #print "depth: ", depth
+        if nextDepth >= self.depth:
+            return self.evaluationFunction(gameState)
+
+        if len(gameState.getLegalActions(agentIndex)) > 0:
+            if agentIndex == 0:
+                runningMax = -99999
+                direction = None
+                for action in gameState.getLegalActions(agentIndex):
+                    currentScore = self.recursiveMinimax(gameState.generateSuccessor(agentIndex, action), nextDepth, nextAgent)
+                    if currentScore > runningMax:
+                        runningMax = currentScore
+                        direction = action
+                self.direction = direction
+                #if nextDepth == 0: print self.direction
+                return runningMax
+            else: 
+                runningMin = 99999
+                direction = None
+                for action in gameState.getLegalActions(agentIndex):
+                    currentScore = self.recursiveMinimax(gameState.generateSuccessor(agentIndex, action), nextDepth, nextAgent)
+                    if currentScore < runningMin:
+                        runningMin = currentScore
+                        direction = action
+                self.direction = direction
+                #if nextDepth == 0: print self.direction
+                return runningMin
+        else: 
+            return self.evaluationFunction(gameState)
+
+
+    """
+    def recursiveMinimax(self, gameState, depth, agentIndex):
+        print "agentIndex: ", agentIndex
+        nextAgent = agentIndex + 1
+        if agentIndex == (gameState.getNumAgents()-1): 
+            depth += 1
+            nextAgent = 0
+            print "depth: ", depth
+        if len(gameState.getLegalActions(agentIndex)) > 0 and depth != self.depth:
+            if agentIndex == 0:
+                return max([self.recursiveMinimax(gameState.generateSuccessor(agentIndex, action), depth, nextAgent) for action in gameState.getLegalActions(agentIndex)])
+            else: 
+                return min([self.recursiveMinimax(gameState.generateSuccessor(agentIndex, action), depth, nextAgent) for action in gameState.getLegalActions(agentIndex)])
+
+        return self.evaluationFunction(gameState)
+    """
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """

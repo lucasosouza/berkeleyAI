@@ -90,7 +90,7 @@ def depthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
     #util.raiseNotDefined()
 
-   # print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
 
     unsolved = True
     state = problem.getStartState()
@@ -146,11 +146,9 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-
-    ############# Original version ##############
-    # print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    # print "Start:", problem.getStartState()
-    # print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
 
     unsolved = True
     state = problem.getStartState()
@@ -186,9 +184,9 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    # print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    # print "Start:", problem.getStartState()
-    # print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
 
     unsolved = True
     state = problem.getStartState()
@@ -230,9 +228,9 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    # print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    # print "Start:", problem.getStartState()
-    # print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
 
     unsolved = True
     state = problem.getStartState()
@@ -263,11 +261,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                         successorNode.append(successor) #adds the successor
                         #implement heuristic
                         nodeCost = reduce(lambda x,s: x+s[2], successorNode, 0)
-                        #print "nodeCost", nodeCost
                         nodeFutureCost = heuristic(successor[0], problem)
-                        #print "nodeFutureCost", nodeFutureCost
                         nodeTotalCost = nodeCost + nodeFutureCost
-                        #print "nodeTotalCost", nodeTotalCost
                         #push to fringe
                         fringe.push(successorNode, nodeTotalCost)
 
